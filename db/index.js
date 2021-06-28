@@ -13,11 +13,11 @@ const connection = mysql.createConnection({
     // Be sure to update with your own MySQL password!
     password: "",
     database: "employees",
-  });
+});
 
 
   function init() {
-     const {option} = await inquirer.prompt({
+     inquirer.prompt({
          type: "list",
          name: "option",
          message: "What would you like to do?",
@@ -30,26 +30,53 @@ const connection = mysql.createConnection({
                 "Add Employee",
                 "Update Employee Roles",
                 ],
+     }).then(function(data) {
+         if(data.option === "View Departments") {
+             console.log("Here are the available departments ");
+             readDepartment();
+         } else if (data.option ===  "View Roles") {
+            console.log("Here are the available employee roles ");
+            readRoles();
+         } else if (data.option === "View Employees") {
+            console.log("Here are the current employees ");
+            readEmployees();
+         } else if (data.option === "Add Department") {
+            console.log("We are going to do a create for department");
+         } else if (data.option === "Add Roles") {
+            console.log("We are going to do a create for roles");
+         } else if (data.option === "Add Employee") {
+            console.log("We are going to do a create for employees");
+         } else if (data.option === "Update Employee Roles") {
+            console.log("We are going to do a update for employees");
+         } else {
+            console.log("Good bye!");
+            process.exit(0);
+         };
      });
+  };
 
-     if(option === "View Departments") {
-         console.log("We are going to do a read for department");
-     } else if (option ===  "View Roles") {
-        console.log("We are going to do a read for roles");
-     } else if (option === "View Employees") {
-        console.log("We are going to do a read for employees");
-     } else if (option === "Add Department") {
-        console.log("We are going to do a create for department");
-     } else if (option === "Add Roles") {
-        console.log("We are going to do a create for roles");
-     } else if (option === "Add Employee") {
-        console.log("We are going to do a create for employees");
-     } else if (option === "Update Employee Roles") {
-        console.log("We are going to do a update for employees");
-     } else {
-        console.log("Good bye!");
-        process.exit(0);
-     }
+  function readDepartment() {
+    connection.query("SELECT * FROM department", (err, data) => {
+        if (err) throw err;
+        console.table(data);
+        init();
+    });
+  };
+
+  function readRoles() {
+    connection.query("SELECT * FROM role", (err, data) => {
+        if (err) throw err;
+        console.table(data);
+        init();
+    });
+  };
+
+  function readEmployees() {
+    connection.query("SELECT * FROM employee", (err, data) => {
+        if (err) throw err;
+        console.table(data);
+        init();
+    });
   };
 
   connection.connect((err) => {
