@@ -56,7 +56,7 @@ const connection = mysql.createConnection({
   function readDepartment() {
     connection.query("SELECT * FROM department", (err, data) => {
         if (err) throw err;
-        console.log("Here are the available departments-------");
+        console.log("Here are the current departments-------");
         console.table(data);
         init();
     });
@@ -65,7 +65,7 @@ const connection = mysql.createConnection({
   function readRoles() {
     connection.query("SELECT * FROM role", (err, data) => {
         if (err) throw err;
-        console.log("Here are the available employee roles-------");
+        console.log("Here are the current employee roles-------");
         console.table(data);
         init();
     });
@@ -157,7 +157,7 @@ const connection = mysql.createConnection({
                 first_name: data.firstName,
                 last_name: data.lastName,
                 role_id: data.roleID,
-                manager_id: data.managerID
+                manager_id: data.managerID || null 
             }
             );
         console.log("Updating employee list-------");
