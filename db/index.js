@@ -45,7 +45,7 @@ const connection = mysql.createConnection({
          } else if (data.option === "Add Employee") {
             createEmployee();
          } else if (data.option === "Update Employee Roles") {
-            console.log("We are going to do a update for employees");
+            updateRole();
          } else {
             console.log("Good bye!");
             process.exit(0);
@@ -164,6 +164,45 @@ const connection = mysql.createConnection({
         readEmployees();
     });
   };
+
+  function updateRole() {
+    connection.query("SELECT * FROM role", (err, data) => {
+        if(err) throw err;
+        // console.log(data);
+        const choices = data.map((role) => (role.title));
+        console.log(choices);
+
+        inquirer.prompt([
+              {
+                  type:"list",
+                  name:"update",
+                  message:"Which role would you like to update?",
+                  choices: choices
+              },
+              {
+                  type:"input",
+                  name:"newRole",
+                  message:"What would you like to rename this role?"
+              },
+          ])
+          .then(function(data){
+            console.log(data.newRole);
+            connection.query(`UPDATE role SET ? WHERE ?`, 
+                [
+                    {title: `${data.newRole}`}, 
+                    {title: `${data.update}`}
+                ], 
+                (err, res) => {
+                    if (err) throw err;
+                    console.log(res);
+                readRoles();
+            }); 
+          });
+    });
+  };
+
+
+
 
   connection.connect((err) => {
     if (err) throw err;
