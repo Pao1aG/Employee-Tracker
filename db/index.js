@@ -1,19 +1,21 @@
 const mysql = require("mysql");
 const inquirer = require("inquirer");
+const connection = require("./connection");
+const createDepartment = require("../src/createDepartment");
 
-const connection = mysql.createConnection({
-    host: "localhost",
+// const connection = mysql.createConnection({
+//     host: "localhost",
   
-    // Your port; if not 3306
-    port: 3306,
+//     // Your port; if not 3306
+//     port: 3306,
   
-    // Your username
-    user: "root",
+//     // Your username
+//     user: "root",
   
-    // Be sure to update with your own MySQL password!
-    password: "",
-    database: "employees",
-});
+//     // Be sure to update with your own MySQL password!
+//     password: "",
+//     database: "employees",
+// });
 
 
   function init() {
@@ -33,7 +35,7 @@ const connection = mysql.createConnection({
                 ],
      }).then(function(data) {
          if(data.option === "View Departments") {
-             readDepartment();
+            readDepartment();
          } else if (data.option ===  "View Roles") {
             readRoles();
          } else if (data.option === "View Employees") {
@@ -80,22 +82,22 @@ const connection = mysql.createConnection({
     });
   };
 
-  function createDepartment () {
-    inquirer.prompt({
-        type:"input",
-        name:"deptName",
-        message:"What is the department name?"
-    }).then(function(data) {
-        connection.query(
-            "INSERT INTO department SET ?",
-            {
-                name: data.deptName
-            }
-            );
-        console.log("Updating department list-------");
-        readDepartment();
-    });
-  };
+//   function createDepartment () {
+//     inquirer.prompt({
+//         type:"input",
+//         name:"deptName",
+//         message:"What is the department name?"
+//     }).then(function(data) {
+//         connection.query(
+//             "INSERT INTO department SET ?",
+//             {
+//                 name: data.deptName
+//             }
+//             );
+//         console.log("Updating department list-------");
+//         readDepartment();
+//     });
+//   };
 
   function createRole () {
     inquirer.prompt([
@@ -200,8 +202,6 @@ const connection = mysql.createConnection({
           });
     });
   };
-
-
 
 
   connection.connect((err) => {
