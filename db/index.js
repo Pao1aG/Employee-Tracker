@@ -16,6 +16,7 @@ const connection = require("./connection");
                 "Add Roles",
                 "Add Employee",
                 "Update Employee Roles",
+                "Remove Employee",
                 "EXIT"
                 ],
      }).then(function(data) {
@@ -35,6 +36,8 @@ const connection = require("./connection");
             createEmployee();
          } else if (data.option === "Update Employee Roles") {
             updateRole();
+         } else if (data.option === "Remove Employee") {
+            deleteEmployee();
          } else {
             console.log("Good bye!");
             process.exit(0);
@@ -104,6 +107,7 @@ const connection = require("./connection");
                     // console.log(managerId);
 
                     connection.query(
+                        //join table help from Tucker
                         `SELECT employee.id, employee.first_name, employee.last_name, department.name 
                         AS department, role.title FROM employee 
                         LEFT JOIN role on role.id = employee.role_id 
@@ -242,6 +246,51 @@ const connection = require("./connection");
     });
   };
 
+  function deleteEmployee() {
+   connection.query(
+       "SELECT first_name, last_name, role_id FROM employee",
+       (err, data) => {
+        if(err) throw err;
+        console.table(data);
+
+        const employeeList = data.map((employee) => (`${employee.first_name} ${employee.last_name}, ${employee.role_id}`));
+        console.log(employeeList);
+
+        inquirer.prompt({
+            type:"list",
+            name:"employee",
+            message: "Which employee would you like to remove?",
+            choices: employeeList
+     
+        }).then(function(data) {
+            console.log(data);
+            //Get id from object
+            const employeeId = Object.values(data).pop().split(',').pop();
+            console.log(employeeId);
+
+            connection.query(
+                `DELETE FROM employee WHERE role_id = ${employeeId}`,
+                (err, res) => {
+                    if (err) throw (err);
+                    console.table(res);
+                    readEmployees();
+                }
+            );
+        });  
+    }
+   );
+
+    
+//     connection.query(
+//           "DELETE from department WHERE employee.id = ",
+//           {},
+//           (err, res) => {
+//               if (err) throw err;
+//               console.log(res);
+//               //readDepartment();
+//           }
+//       )
+}
 
   connection.connect((err) => {
     if (err) throw err;
