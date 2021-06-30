@@ -1,22 +1,6 @@
 const mysql = require("mysql");
 const inquirer = require("inquirer");
 const connection = require("./connection");
-const createDepartment = require("../src/createDepartment");
-
-// const connection = mysql.createConnection({
-//     host: "localhost",
-  
-//     // Your port; if not 3306
-//     port: 3306,
-  
-//     // Your username
-//     user: "root",
-  
-//     // Be sure to update with your own MySQL password!
-//     password: "",
-//     database: "employees",
-// });
-
 
   function init() {
      inquirer.prompt({
@@ -26,7 +10,8 @@ const createDepartment = require("../src/createDepartment");
          choices: [
                 "View Departments",
                 "View Roles",
-                "View Employees",        
+                "View Employees",
+                "View Employees by Manager",        
                 "Add Department",
                 "Add Roles",
                 "Add Employee",
@@ -40,6 +25,8 @@ const createDepartment = require("../src/createDepartment");
             readRoles();
          } else if (data.option === "View Employees") {
             readEmployees();
+         } else if (data.option === "View Employees by Manager") {
+            readEmployeesMng();
          } else if (data.option === "Add Department") {
             createDepartment();
          } else if (data.option === "Add Roles") {
@@ -82,22 +69,85 @@ const createDepartment = require("../src/createDepartment");
     });
   };
 
-//   function createDepartment () {
-//     inquirer.prompt({
-//         type:"input",
-//         name:"deptName",
-//         message:"What is the department name?"
-//     }).then(function(data) {
-//         connection.query(
-//             "INSERT INTO department SET ?",
-//             {
-//                 name: data.deptName
-//             }
-//             );
-//         console.log("Updating department list-------");
-//         readDepartment();
-//     });
-//   };
+//   Need to do a join here, look at books.sql
+  function readEmployeesMng() {
+    connection.query("SELECT * FROM employee",(err, data) => {
+        if (err) throw err;
+
+        // console.table(data);
+        //DATA FROM TABLE EMPLOYEE
+        if(data.manager_id !== null) {
+            const managers = data.filter((manager) => manager.manager_id !== null);
+            // console.log(managers);
+
+            const choices = managers.map((name) => (`${name.last_name}`));
+            //, ${name.id}
+            console.log(choices);
+
+            inquirer.prompt({
+                type:"list",
+                name:"managers",
+                message:"Which manager's employees would you like to see?",
+                choices: choices
+            }).then(function(data) {
+                console.log(data);
+                //Last name of employee
+                const lastName = data.managers;
+                console.log(lastName);
+
+                //Grabbing the manager id based on last name
+                connection.query(`SELECT manager_id FROM employee WHERE last_name = "${lastName}"`,(err, managerID) => {
+                    if (err) throw err;
+                    console.log(managerID);
+                });
+
+                connection.query(
+                    // SELECT employee.id, employee.first_name, employee.last_name, department.name 
+                    //AS department, role.title FROM employee 
+                    //LEFT JOIN role on role.id = employee.role_id 
+                    //LEFT JOIN department ON department.id = role.department_id WHERE manager_id = ?
+                    `SELECT * FROM employee WHERE last_name = "${lastName}" OR manager_id = role_id`,
+                    (err, res) => {
+                    if(err) throw err;
+                    console.log(`I am selecting the table info for ${lastName}`);
+                    const managerTable = res;
+                    console.table(managerTable);
+                    // connection.query(
+                    //     `SELECT * FROM ${managerTable} 
+                    //     INNER JOIN employee ON ${managerTable.manager_id} = role_id`,
+                    // (err,res) => {
+                    //     if(err) throw err;
+                    //     console.log("I am making table with employees-----");
+                    //     console.table(res);
+                    // });
+                    connection.end();
+                });
+               
+               
+            });
+        } else {
+            console.log("No managers have been added");
+        };
+    });
+    // init();
+  };
+
+  function createDepartment () {
+    inquirer.prompt({
+        type:"input",
+        name:"deptName",
+        message:"What is the department name?"
+    }).then(function(data) {
+        connection.query(
+            "INSERT INTO department SET ?",
+            {
+                name: data.deptName
+            }
+            );
+        console.log("Updating department list-------");
+        readDepartment();
+    });
+  };
 
   function createRole () {
     inquirer.prompt([
