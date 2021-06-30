@@ -74,15 +74,13 @@ const connection = require("./connection");
     connection.query("SELECT * FROM employee",(err, data) => {
         if (err) throw err;
 
-        // console.table(data);
         //DATA FROM TABLE EMPLOYEE
-        if(data.manager_id !== null) {
+        if(data !== null) {
+            //grab employees with manager id
             const managers = data.filter((manager) => manager.manager_id !== null);
-            // console.log(managers);
 
+            //create an array with just the managers' last name
             const choices = managers.map((name) => (`${name.last_name}`));
-            //, ${name.id}
-            console.log(choices);
 
             inquirer.prompt({
                 type:"list",
@@ -96,40 +94,31 @@ const connection = require("./connection");
                 console.log(lastName);
 
                 //Grabbing the manager id based on last name
-                connection.query(`SELECT manager_id FROM employee WHERE last_name = "${lastName}"`,(err, managerID) => {
+                connection.query(`SELECT manager_id FROM employee WHERE last_name = "${lastName}"`,(err, data) => {
                     if (err) throw err;
-                    console.log(managerID);
-                });
 
-                connection.query(
-                    // SELECT employee.id, employee.first_name, employee.last_name, department.name 
-                    //AS department, role.title FROM employee 
-                    //LEFT JOIN role on role.id = employee.role_id 
-                    //LEFT JOIN department ON department.id = role.department_id WHERE manager_id = ?
-                    `SELECT * FROM employee WHERE last_name = "${lastName}" OR manager_id = role_id`,
-                    (err, res) => {
-                    if(err) throw err;
-                    console.log(`I am selecting the table info for ${lastName}`);
-                    const managerTable = res;
-                    console.table(managerTable);
-                    // connection.query(
-                    //     `SELECT * FROM ${managerTable} 
-                    //     INNER JOIN employee ON ${managerTable.manager_id} = role_id`,
-                    // (err,res) => {
-                    //     if(err) throw err;
-                    //     console.log("I am making table with employees-----");
-                    //     console.table(res);
-                    // });
-                    connection.end();
+                    //grab value from object
+                    const idArray = data.map((object) => (`${object.manager_id}`));
+                    //get number out of array
+                    const managerId = idArray.pop();
+                    // console.log(managerId);
+
+                    connection.query(
+                        `SELECT employee.id, employee.first_name, employee.last_name, department.name 
+                        AS department, role.title FROM employee 
+                        LEFT JOIN role on role.id = employee.role_id 
+                        LEFT JOIN department ON department.id = role.department_id WHERE role_id = ${managerId}`, 
+                        (err,data) => {
+                            if (err) throw err; 
+                            console.table(data);
+                            init();
+                        });
                 });
-               
-               
             });
         } else {
-            console.log("No managers have been added");
+            console.log("No employees have been added");
         };
     });
-    // init();
   };
 
   function createDepartment () {
