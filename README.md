@@ -74,7 +74,7 @@ node index.js
 
 Inquirer will prompt you with a list of options to view, update, or add to certain tables.
 
-> For a demo of this application, [Watch Here]()
+> For a demo of this application, [Watch Here](https://drive.google.com/file/d/1Bp7IFOu8LSCl2gkDrv6DCY5XTJrRzYoN/view)
 
 ## Credits
 
