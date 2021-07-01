@@ -72,7 +72,6 @@ const connection = require("./connection");
     });
   };
 
-//   Need to do a join here, look at books.sql
   function readEmployeesMng() {
     connection.query("SELECT * FROM employee",(err, data) => {
         if (err) throw err;
@@ -277,20 +276,9 @@ const connection = require("./connection");
                 }
             );
         });  
-    }
-   );
+    });
+  };
 
-    
-//     connection.query(
-//           "DELETE from department WHERE employee.id = ",
-//           {},
-//           (err, res) => {
-//               if (err) throw err;
-//               console.log(res);
-//               //readDepartment();
-//           }
-//       )
-}
 
   connection.connect((err) => {
     if (err) throw err;
